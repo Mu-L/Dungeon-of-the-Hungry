@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="Combatant" load_steps=21 format=3 uid="uid://6m0cakotoioo"]
+[gd_resource type="Resource" script_class="Combatant" load_steps=24 format=3 uid="uid://6m0cakotoioo"]
 
 [ext_resource type="Script" uid="uid://bmthc4klvewgt" path="res://Player/inventory/Scripts/inventory_data_boots.gd" id="1_2uc4q"]
 [ext_resource type="Script" uid="uid://dvi8g4xkqqv8y" path="res://Combatants/Ability/scripts/ability.gd" id="1_ingsl"]
 [ext_resource type="Script" uid="uid://c0yrnvp26clth" path="res://Combatants/Combatant/combatants.gd" id="1_lu11j"]
 [ext_resource type="Script" uid="uid://bf2npp2mjwn80" path="res://Player/inventory/Scripts/slot_data.gd" id="2_2uc4q"]
+[ext_resource type="Resource" uid="uid://dhw4f6rved787" path="res://Combatants/Ability/all_abilities/solo_abilities/testing_heal_ability.tres" id="2_hd7tf"]
 [ext_resource type="Script" uid="uid://dctfo83yv2n17" path="res://Player/inventory/Scripts/inventory_data_chestplate.gd" id="3_ingsl"]
 [ext_resource type="Script" uid="uid://dudvwcirx1mbp" path="res://Player/inventory/Scripts/inventory_data_greeves.gd" id="4_x27ln"]
 [ext_resource type="Script" uid="uid://dwtydadx31jd4" path="res://Player/inventory/Scripts/inventory_data_helmet.gd" id="5_hd7tf"]
@@ -12,6 +13,7 @@
 [ext_resource type="Resource" uid="uid://rqcbxo326u4e" path="res://Combatants/Classes/Samurai/samurai.tres" id="8_rkp0j"]
 [ext_resource type="Script" uid="uid://brp1e4sp4uke2" path="res://Player/inventory/Scripts/inventory_data_weapon.gd" id="10_5bycx"]
 [ext_resource type="Texture2D" uid="uid://bbn06yrvt67ep" path="res://Npcs/allNpcs/testing/sprite_template_test.png" id="10_cnx56"]
+[ext_resource type="Resource" uid="uid://casd31kl8i31f" path="res://Items/Weapons/Melee/Swords/Katana.tres" id="14_xtcnh"]
 
 [sub_resource type="Resource" id="Resource_n3yjx"]
 script = ExtResource("1_2uc4q")
@@ -48,9 +50,14 @@ script = ExtResource("7_bffeb")
 slot_datas = Array[ExtResource("2_2uc4q")]([null])
 metadata/_custom_type_script = "uid://bg13pcscr3r7"
 
+[sub_resource type="Resource" id="Resource_bffeb"]
+script = ExtResource("2_2uc4q")
+item_data = ExtResource("14_xtcnh")
+metadata/_custom_type_script = "uid://bf2npp2mjwn80"
+
 [sub_resource type="Resource" id="Resource_16vdx"]
 script = ExtResource("10_5bycx")
-slot_datas = Array[ExtResource("2_2uc4q")]([null])
+slot_datas = Array[ExtResource("2_2uc4q")]([SubResource("Resource_bffeb")])
 metadata/_custom_type_script = "uid://brp1e4sp4uke2"
 
 [resource]
@@ -66,5 +73,7 @@ offhand_inv_data = SubResource("Resource_ocorj")
 weapon_inv_data = SubResource("Resource_16vdx")
 texture = ExtResource("10_cnx56")
 is_ally = true
-max_abilities = null
+prepped_abilities = Array[ExtResource("1_ingsl")]([ExtResource("2_hd7tf")])
+all_abilities = Array[ExtResource("1_ingsl")]([ExtResource("2_hd7tf")])
+max_abilities = 1
 metadata/_custom_type_script = "uid://c0yrnvp26clth"

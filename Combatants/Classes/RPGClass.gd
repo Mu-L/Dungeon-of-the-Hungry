@@ -17,13 +17,11 @@ enum class_names {Berserker, Cleric, Cook, Landsknecht, Mage, Pact_Bound, Samura
 @export var current_level : int = 1
 const MAX_LEVEL : int = 99
 
-var speed : int = 10 + int(agility / 10) # 10 + (.1 - 10)
+var speed : int # 10 + (.1 - 10)
 
-var max_health : int = endurance * 50 #1 - 100 * 50 = 50 - 5000
-var health : int = endurance * 50
+@export var health : int = -1 #-1 when hasn't been in combat yet
 
-var max_hunger : int = max(intelligence, devotion) * 20 #1 - 100 * 20 = 20 - 2000
-var hunger : int = max(intelligence, devotion) * 20
+@export var hunger : int = -1
 
 func get_rpg_class() -> String:
 	match rpg_class_name:
@@ -182,7 +180,7 @@ func get_health() -> int:
 	return health
 
 func get_max_health() -> int:
-	return max_health
+	return endurance * 50
 
 func set_health(new_current_health : int):
 	if new_current_health >= get_max_health():
@@ -190,15 +188,11 @@ func set_health(new_current_health : int):
 	else:
 		health = new_current_health
 
-func set_max_health(new_max_health : int):
-	if new_max_health > 0:
-		max_health = new_max_health
-
 func get_hunger() -> int:
 	return hunger
 
 func get_max_hunger() -> int:
-	return max_hunger
+	return max(devotion, intelligence) * 20
 
 func set_hunger(new_hunger : int):
 	if new_hunger > get_max_hunger():
@@ -208,14 +202,8 @@ func set_hunger(new_hunger : int):
 	else:
 		hunger = new_hunger
 
-func set_max_hunger(new_max_hunger : int):
-	if new_max_hunger <= 0:
-		max_hunger = 0
-	else:
-		max_hunger = new_max_hunger
-
-func reset_speed():
-	speed = 10 + int(agility / 10)
-
 func get_current_level() -> int:
 	return current_level
+
+func get_speed() -> int:
+	return 10 + int(agility / 10)

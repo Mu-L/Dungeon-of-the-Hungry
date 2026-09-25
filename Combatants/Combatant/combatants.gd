@@ -72,7 +72,7 @@ func get_max_health() -> int:
 	return rpg_class.get_max_health()
 
 func get_speed() -> int:
-	return rpg_class.speed
+	return rpg_class.get_speed()
 
 func set_speed(value : int):
 	if value < 0:
@@ -142,8 +142,8 @@ func get_combatant_name() -> String:
 	return self.combatant_name
 
 func can_act() -> bool: #atb gauge is full, alive and isn't sleeping
-	var sleep_status : Array = has_status(preload("uid://yj0upoagb63x"))
-	return has_full_atb() and is_alive() and sleep_status[0] == false
+	#var sleep_status : Array = has_status(preload("uid://yj0upoagb63x"))
+	return has_full_atb() and is_alive()# and sleep_status[0] == false
 
 func is_alive() -> bool:
 	return get_health() > 0
@@ -240,7 +240,10 @@ func make_basic_attack() -> Ability:
 	
 	output.ability_name = "basic attack"
 	output.effect = weapon.effect
-	output.target_type = Ability.TargetType.single_enemy
+	if is_ally:
+		output.target_type = Ability.TargetType.single_enemy
+	else:
+		output.target_type = Ability.TargetType.single_ally
 	output.ability_type = Ability.AbilityType.damage
 	output.accuracy = weapon.accuracy
 	return output
@@ -253,3 +256,6 @@ func get_size() -> Vector2:
 
 func can_afford(ability : Ability) -> bool:
 	return get_hunger() >= ability.hunger_cost
+
+func update_stats() -> void:
+	rpg_class.update_stats()

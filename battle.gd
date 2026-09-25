@@ -70,34 +70,48 @@ func battle_loop():
 			var next_action : QueuedAction = action_queue.dequeue()
 			if is_valid_targets(next_action.targets):
 				apply_abilities(next_action.ability, next_action.user, next_action.targets)
-				print("action apllied")
 				next_action.user.is_in_queue = false
 				next_action.user.reset_atb()
-				print("removed from queue")
 		await get_tree().create_timer(battle_speed).timeout
 
-func _unhandled_input(_event: InputEvent) -> void: #temp
+func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("settings"): #for debugging
 		get_tree().quit()
+		for combatant in all_combatants:
+			print(combatant.combatant_name)
+			print(combatant.get_stats())
+			print(combatant.get_health())
 	if Input.is_action_just_pressed("ui_battle_left") and can_select_targets:
 		target_index = ((target_index - 1) % all_combatants.size() + all_combatants.size()) % all_combatants.size()
+		#TODO update visuals for targeting
 		print(target_index)
 	if Input.is_action_just_pressed("ui_battle_right") and can_select_targets: 
 		target_index = (target_index + 1) % all_combatants.size()
+		#TODO update visuals for targeting
 		print(target_index)
 	if Input.is_action_just_pressed("ui_battle_accept") and can_select_targets: #TODO add cond for valid targets
+		#TODO figure out better way to do this
 		valid_targets = get_valid_targets(selected_ability,current_combatant)
 		var action : QueuedAction
 		if selected_ability.target_type == Ability.TargetType.single_enemy or selected_ability.target_type == Ability.TargetType.single_ally:
-			action  = QueuedAction.new(current_combatant,selected_ability,[all_combatants[target_index]]) #TODO fix
+			action  = QueuedAction.new(current_combatant,selected_ability,[all_combatants[target_index]])
 		else:
-			action = QueuedAction.new(current_combatant,selected_ability,all_combatants) #TODO fix
-		print(action.ability.ability_name + " added to queue")
+			action = QueuedAction.new(current_combatant,selected_ability,all_combatants)
+		#print(action.ability.ability_name + " added to queue")
 		action_queue.enqueue(action) #current combatant's action gets added to queue upon hitting enter
 
 func initialize_combat() -> void:
 	for combatant in all_combatants:
 		if combatant:
+			#print(combatant.combatant_name)
+			#print(combatant.rpg_class.endurance)
+			#print(combatant.get_health())
+			#print(combatant.get_max_health())
+			if combatant.get_health() >= -1: #only applied if combatant hasn't been in combat yet
+				combatant.set_health(combatant.get_max_health())
+				#print(combatant.get_health())
+			if combatant.get_hunger() >= -1:
+				combatant.set_hunger(combatant.get_max_hunger())
 			combatant.get_equipment_effects() #applies all resistances
 			combatant.get_random_atb() #randomly sets atb for each combatant
 			combatant.stat_updated.emit(combatant)
@@ -203,20 +217,23 @@ func run_enemy_turn(combatant : Combatant):
 	var usable : Array[Ability] = combatant.prepped_abilities.filter(func(c) : return combatant.can_afford(c))
 	usable.append(combatant.make_basic_attack())
 	
-	for ability in usable:
-		ability.target_type = Ability.TargetType.single_ally
-	
-	var chosen_ability : Ability = usable.pick_random()
-	var targets = get_valid_targets(chosen_ability, combatant)
+	var chosen_ability : Ability = usable.pick_random() #TODO add some sorta enemy combatant state machine that chooses abilities and whatnot
+	var targets : Array[Combatant] = get_valid_targets(chosen_ability, combatant)
 	
 	if targets.is_empty():
 		return
 	
-	var is_all = chosen_ability.target_type in [Ability.TargetType.all_enemies, Ability.TargetType.all_allies, Ability.TargetType.all_combatants]
-	var final_targets = targets if is_all else [targets.pick_random()]
+	var is_all : bool = chosen_ability.target_type in [Ability.TargetType.all_enemies, Ability.TargetType.all_allies, Ability.TargetType.all_combatants]
+	var final_targets : Array[Combatant] 
+	if is_all:
+		final_targets = targets
+	else:
+		final_targets.append(targets.pick_random())
 	
-	for target in final_targets:
-		resolve_abilities(chosen_ability, combatant, target)
+	var action : QueuedAction = QueuedAction.new(combatant,chosen_ability,final_targets)
+	combatant.reset_atb()
+	action_queue.enqueue(action)
+	
 
 func win_conditions() -> bool: #if player wins returns true
 	return false
@@ -225,7 +242,7 @@ func loss_conditions() -> bool: #if player losses returns true
 	return false
 
 func ally_ability_selected(ability : Ability, user : Combatant):
-	print(user.combatant_name + " ability selected: " + ability.ability_name)
+	#print(user.combatant_name + " ability selected: " + ability.ability_name)
 	current_combatant = user
 	selected_ability = ability
 	can_select_targets = true
